@@ -422,6 +422,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ english: input })
       });
+      if (!res.ok) throw new Error(`Server error ${res.status} — check the API key is set in Render environment variables`);
       const data = await res.json();
 
       if (data.error) throw new Error(data.error);
