@@ -73,8 +73,14 @@ Rules:
 - For example: "to eat" is 食 (sik6) in Cantonese, NOT 吃; "don't have" is 冇 (mou5), NOT 沒有; "very" is 好 (hou2), NOT 很
 - Use colloquial spoken Hong Kong Cantonese, not formal written Chinese
 - Provide Jyutping romanization (the standard Cantonese phonetic system with tone numbers 1-6)
-- Provide a simple English phonetic hint so a beginner can approximate the pronunciation
-- For the phonetic hint, use the most widely recognised English approximation — e.g. 早晨 = "Jow sun", 你好 = "Nay ho", 唔該 = "M-goy". Write it as most English speakers in Hong Kong would say it, capitalising the stressed syllable
+- Provide a phonetic hint written as English syllables, exactly how an English speaker living in Hong Kong would say it out loud
+- Use these sound mappings consistently:
+  INITIALS: z/j → "j" (早=jow, 知=jee), c → "ch" (車=cheh, 錯=chaw), s → "s", g → "g", k → "k", ng → "ng", gw → "gw", kw → "kw", h → "h", f → "f", l → "l", m → "m", n → "n", w → "w", b → "b", p → "p", d → "d", t → "t"
+  VOWELS/FINALS: aa → "ah", aai → "eye", aau → "ow", aam → "aam", aan → "aan", aang → "aang", aak → "ahk", aap → "aap", aat → "aat", ai → "eye", au → "oh", am → "um", an → "un", ang → "ung", ak → "uk", ap → "up", at → "ut", ei → "ay", eu/eo → "er", i → "ee", iu → "yew", im → "im", in → "in", ing → "ing", ik → "ik", ip → "ip", it → "it", o → "oh", oi → "oy", ou → "oh", on → "on", ong → "ong", ok → "ok", op → "op", ot → "ot", u → "oo", ui → "wee", un → "oon", ung → "oong", uk → "ook", ut → "oot", yu → "yü" (use "ew" for English speakers), yun → "ewn", yut → "ewt"
+  STANDALONE SYLLABLES: 唔(m4)="m", 吳(ng4)="ng"
+  TONES: ignore tone numbers in the phonetic — just write the syllables naturally
+- Examples: 早晨="Jow sun", 你好="Nay ho", 唔該="M-goy", 多謝="Doh jeh", 好味="Ho may", 係="Hay", 唔係="M-hay", 邊度="Bin doh", 去="Hoy", 食="Sik", 飲="Yum", 幾多錢="Gay daw chin"
+- Hyphenate syllables within a word, space between words. Capitalise the first syllable only
 
 English: {english}
 
