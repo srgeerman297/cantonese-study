@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>廣東話 — Cantonese Study</title>
+  <style>
+    :root {
+      --bg:        #0e0e12;
+      --surface:   #16161d;
+      --card:      #1c1c26;
+      --border:    #2a2a3a;
+      --gold:      #d4a843;
+      --gold-dim:  #8a6e2a;
+      --red:       #e05c5c;
+      --text:      #e8e4dc;
+      --muted:     #7a7890;
+      --accent:    #5b7cf5;
+      --radius:    12px;
+      --font-sans: 'Helvetica Neue', Arial, sans-serif;
+      --font-zh:   'PingFang TC', 'Noto Sans TC', serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 28px 40px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    header .zh-title {
+      font-family: var(--font-zh);
+      font-size: 1.2rem;
+      color: var(--gold);
+    }
+    header .badge {
+      margin-left: auto;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Input Panel ── */
+    .input-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    .panel-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    textarea {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.6;
+      padding: 14px 16px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+      min-height: 120px;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      width: 100%;
+    }
+    .btn-primary:hover { filter: brightness(1.15); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-gold {
+      background: var(--gold);
+      color: #0e0e12;
+      width: 100%;
+    }
+    .btn-gold:hover { filter: brightness(1.1); }
+    .btn-speak {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      font-size: 0.82rem;
+    }
+    .btn-speak:hover { background: var(--border); }
+    .btn-danger {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 6px;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .btn-danger:hover { color: var(--red); }
+
+    /* ── Result Card ── */
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .result-card.visible { display: flex; }
+    .result-zh {
+      font-family: var(--font-zh);
+      font-size: 2.2rem;
+      line-height: 1.3;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
+    .result-jyutping {
+      font-size: 1rem;
+      color: var(--gold);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .result-phonetic {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.5;
+    }
+    .result-phonetic::before { content: "🗣 "; font-style: normal; }
+
+    .error-msg {
+      background: #2a1414;
+      border: 1px solid #5c2020;
+      color: var(--red);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Phrases Panel ── */
+    .phrases-panel {
+      padding: 32px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .phrases-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .count-chip {
+      background: var(--border);
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      letter-spacing: 0.05em;
+    }
+
+    .phrase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .phrase-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      transition: border-color 0.2s;
+    }
+    .phrase-item:hover { border-color: var(--accent); }
+    .phrase-item.playing { border-color: var(--gold); }
+
+    .phrase-en {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .phrase-zh {
+      font-family: var(--font-zh);
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .phrase-jyutping {
+      font-size: 0.85rem;
+      color: var(--gold);
+      margin-bottom: 3px;
+    }
+    .phrase-phonetic {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .phrase-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
+    }
+    .phrase-date {
+      font-size: 0.68rem;
+      color: var(--border);
+      white-space: nowrap;
+      margin-bottom: 4px;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      height: 300px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .empty-state .icon { font-size: 3rem; }
+    .empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Speed slider ── */
+    .speed-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .speed-row label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .speed-row input[type=range] {
+      flex: 1;
+      accent-color: var(--gold);
+      cursor: pointer;
+      height: 4px;
+    }
+    .speed-val {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gold);
+      width: 32px;
+      text-align: right;
+    }
+
+    /* ── Speak ripple ── */
+    @keyframes ripple {
+      0%   { box-shadow: 0 0 0 0 rgba(212,168,67,0.4); }
+      100% { box-shadow: 0 0 0 10px rgba(212,168,67,0); }
+    }
+    .btn-speak.speaking { animation: ripple 0.8s infinite; border-color: var(--gold); color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Cantonese Study</h1>
+  <span class="zh-title">廣東話練習</span>
+  <span class="badge">Hong Kong Cantonese</span>
+</header>
+
+<div class="layout">
+
+  <!-- ── Input Panel ── -->
+  <div class="input-panel">
+    <div>
+      <div class="panel-label">What do you want to say?</div>
+      <textarea id="english-input" placeholder="Type in English…&#10;e.g. Where is the nearest MTR station?" rows="5"></textarea>
+    </div>
+
+    <div class="speed-row">
+      <label>Speed</label>
+      <input type="range" id="speed-slider" min="0.4" max="1.4" step="0.1" value="0.85"
+             oninput="document.getElementById('speed-val').textContent=parseFloat(this.value).toFixed(1)+'×'">
+      <span class="speed-val" id="speed-val">0.9×</span>
+    </div>
+
+    <button class="btn btn-primary" id="translate-btn" onclick="doTranslate()">
+      <span id="translate-label">Translate to Cantonese</span>
+    </button>
+
+    <div class="error-msg" id="error-msg"></div>
+
+    <div class="result-card" id="result-card">
+      <div>
+        <div class="panel-label">Cantonese</div>
+        <div class="result-zh" id="result-zh">—</div>
+      </div>
+      <div>
+        <div class="panel-label">Jyutping</div>
+        <div class="result-jyutping" id="result-jyutping">—</div>
+      </div>
+      <div class="result-phonetic" id="result-phonetic">—</div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <button class="btn btn-speak" id="speak-preview-btn" onclick="speakResult()">▶ Hear it</button>
+        <button class="btn btn-gold" onclick="savePhrase()">Save Phrase</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Phrases Panel ── -->
+  <div class="phrases-panel">
+    <div class="phrases-header">
+      <div>
+        <div class="panel-label">Saved Phrases</div>
+      </div>
+      <span class="count-chip" id="count-chip">0 phrases</span>
+    </div>
+    <div class="phrase-list" id="phrase-list">
+      <div class="empty-state">
+        <div class="icon">字</div>
+        <p>Your saved phrases will appear here.<br>Translate something and click <strong>Save Phrase</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentResult = null;
+  let phrases = [];
+  let activeSpeech = null;
+
+  async function doTranslate() {
+    const input = document.getElementById('english-input').value.trim();
+    if (!input) return;
+
+    const btn = document.getElementById('translate-btn');
+    const label = document.getElementById('translate-label');
+    const errorEl = document.getElementById('error-msg');
+    const card = document.getElementById('result-card');
+
+    btn.disabled = true;
+    label.innerHTML = '<span class="spinner"></span> Translating…';
+    errorEl.classList.remove('visible');
+    card.classList.remove('visible');
+
+    try {
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ english: input })
+      });
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      currentResult = { ...data, english: input };
+      document.getElementById('result-zh').textContent = data.cantonese;
+      document.getElementById('result-jyutping').textContent = data.jyutping;
+      document.getElementById('result-phonetic').textContent = data.phonetic;
+      card.classList.add('visible');
+    } catch (e) {
+      errorEl.textContent = 'Error: ' + e.message;
+      errorEl.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      label.textContent = 'Translate to Cantonese';
+    }
+  }
+
+  function speak(text, btn) {
+    if (activeSpeech) {
+      window.speechSynthesis.cancel();
+      activeSpeech = null;
+    }
+
+    // Remove speaking state from all buttons
+    document.querySelectorAll('.btn-speak').forEach(b => b.classList.remove('speaking'));
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'zh-HK';
+    utter.rate = parseFloat(document.getElementById('speed-slider').value);
+
+    // Try to find a Cantonese/HK voice
+    const voices = window.speechSynthesis.getVoices();
+    const hkVoice = voices.find(v => v.lang === 'zh-HK') ||
+                    voices.find(v => v.lang.startsWith('zh') && v.name.includes('Sin')) ||
+                    voices.find(v => v.lang.startsWith('zh'));
+    if (hkVoice) utter.voice = hkVoice;
+
+    utter.onstart = () => {
+      if (btn) btn.classList.add('speaking');
+      activeSpeech = utter;
+    };
+    utter.onend = utter.onerror = () => {
+      if (btn) btn.classList.remove('speaking');
+      activeSpeech = null;
+    };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  function speakResult() {
+    if (!currentResult) return;
+    speak(currentResult.cantonese, document.getElementById('speak-preview-btn'));
+  }
+
+  async function savePhrase() {
+    if (!currentResult) return;
+
+    const res = await fetch('/api/phrases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentResult)
+    });
+    const phrase = await res.json();
+    phrases.unshift(phrase);
+    renderPhrases();
+
+    // Flash the result card border
+    const card = document.getElementById('result-card');
+    card.style.borderColor = '#d4a843';
+    setTimeout(() => card.style.borderColor = '', 800);
+  }
+
+  async function deletePhrase(id) {
+    await fetch('/api/phrases/' + encodeURIComponent(id), { method: 'DELETE' });
+    phrases = phrases.filter(p => p.id !== id);
+    renderPhrases();
+  }
+
+  function renderPhrases() {
+    const list = document.getElementById('phrase-list');
+    const chip = document.getElementById('count-chip');
+    chip.textContent = phrases.length + (phrases.length === 1 ? ' phrase' : ' phrases');
+
+    if (phrases.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">字</div>
+          <p>Your saved phrases will appear here.<br>Translate something and click <strong>Save Phrase</strong>.</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = phrases.map(p => `
+      <div class="phrase-item" id="item-${CSS.escape(p.id)}">
+        <div>
+          <div class="phrase-en">${escHtml(p.english)}</div>
+          <div class="phrase-zh">${escHtml(p.cantonese)}</div>
+          <div class="phrase-jyutping">${escHtml(p.jyutping)}</div>
+          <div class="phrase-phonetic">${escHtml(p.phonetic)}</div>
+        </div>
+        <div class="phrase-actions">
+          <div class="phrase-date">${escHtml(p.created)}</div>
+          <button class="btn btn-speak" onclick="speakPhrase('${escAttr(p.id)}', '${escAttr(p.cantonese)}', this)">▶ Play</button>
+          <button class="btn btn-danger" onclick="deletePhrase('${escAttr(p.id)}')" title="Delete">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function speakPhrase(id, text, btn) {
+    // Toggle off if already speaking this one
+    if (btn.classList.contains('speaking')) {
+      window.speechSynthesis.cancel();
+      btn.classList.remove('speaking');
+      activeSpeech = null;
+      return;
+    }
+    speak(text, btn);
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) {
+    return String(s).replace(/'/g, "\\'");
+  }
+
+  // Load on page load
+  window.speechSynthesis.onvoiceschanged = () => {}; // preload voices
+  window.speechSynthesis.getVoices(); // trigger voice loading
+
+  fetch('/api/phrases')
+    .then(r => r.json())
+    .then(data => { phrases = data; renderPhrases(); });
+
+  // Cmd+Enter to translate
+  document.getElementById('english-input').addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') doTranslate();
+  });
+</script>
+
+</body>
+</html>
