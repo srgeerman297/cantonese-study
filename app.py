@@ -74,6 +74,7 @@ Rules:
 - Use colloquial spoken Hong Kong Cantonese, not formal written Chinese
 - Provide Jyutping romanization (the standard Cantonese phonetic system with tone numbers 1-6)
 - Provide a simple English phonetic hint so a beginner can approximate the pronunciation
+- For the phonetic hint, use the most widely recognised English approximation — e.g. 早晨 = "Jow sun", 你好 = "Nay ho", 唔該 = "M-goy". Write it as most English speakers in Hong Kong would say it, capitalising the stressed syllable
 
 English: {english}
 
