@@ -7,9 +7,3 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: DB_PATH
-        value: /var/data/phrases.db
-    disk:
-      name: phrases-data
-      mountPath: /var/data
-      sizeGB: 1
