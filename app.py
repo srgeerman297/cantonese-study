@@ -65,23 +65,24 @@ def translate():
         messages=[
             {
                 "role": "user",
-                "content": f"""Translate the following English phrase into Cantonese (Traditional Chinese as spoken in Hong Kong).
+                "content": f"""You are a Hong Kong Cantonese language expert. Translate the English phrase below into HONG KONG CANTONESE — NOT Mandarin, NOT Putonghua, NOT simplified Chinese.
 
-Provide:
-1. The Cantonese Chinese characters (Traditional)
-2. The Jyutping romanization (phonetic pronunciation guide)
-3. A literal pronunciation hint in plain English syllables (to help someone pronounce it phonetically without knowing Jyutping)
+Rules:
+- Use Traditional Chinese characters (繁體字) as written in Hong Kong
+- Use authentic Cantonese vocabulary and grammar, NOT Mandarin words written in Traditional characters
+- For example: "to eat" is 食 (sik6) in Cantonese, NOT 吃; "don't have" is 冇 (mou5), NOT 沒有; "very" is 好 (hou2), NOT 很
+- Use colloquial spoken Hong Kong Cantonese, not formal written Chinese
+- Provide Jyutping romanization (the standard Cantonese phonetic system with tone numbers 1-6)
+- Provide a simple English phonetic hint so a beginner can approximate the pronunciation
 
 English: {english}
 
-Respond in this exact JSON format:
+Respond ONLY in this exact JSON format, no extra text:
 {{
-  "cantonese": "Traditional Chinese characters here",
-  "jyutping": "jyutping romanization here",
-  "phonetic": "easy English phonetic hint here"
-}}
-
-Only output the JSON, nothing else.""",
+  "cantonese": "Traditional Chinese characters (Hong Kong Cantonese)",
+  "jyutping": "jyutping with tone numbers",
+  "phonetic": "easy English syllables e.g. nay ho ma"
+}}""",
             }
         ],
     )
