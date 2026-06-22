@@ -296,6 +296,33 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Mic button ── */
+    .btn-mic {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px 4px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font-sans);
+    }
+    .btn-mic:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-mic.listening {
+      border-color: var(--red);
+      color: var(--red);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(224,92,92,0.4); }
+      50%       { box-shadow: 0 0 0 6px rgba(224,92,92,0); }
+    }
+
     /* ── Speed slider ── */
     .speed-row {
       display: flex;
@@ -345,8 +372,14 @@
   <!-- ── Input Panel ── -->
   <div class="input-panel">
     <div>
-      <div class="panel-label">What do you want to say?</div>
-      <textarea id="english-input" placeholder="Type in English…&#10;e.g. Where is the nearest MTR station?" rows="5"></textarea>
+      <div class="panel-label" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>What do you want to say?</span>
+        <button class="btn-mic" id="mic-btn" onclick="toggleMic()" title="Speak in English">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1.5 17.93A7.001 7.001 0 0 1 5 12H3a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12h-2a7 7 0 0 1-5.5 6.93V19h-1v-.07z"/></svg>
+          <span id="mic-label">Speak</span>
+        </button>
+      </div>
+      <textarea id="english-input" placeholder="Type in English… or click Speak&#10;e.g. Where is the nearest MTR station?" rows="5"></textarea>
     </div>
 
     <div class="speed-row">
@@ -549,6 +582,66 @@
   }
   function escAttr(s) {
     return String(s).replace(/'/g, "\\'");
+  }
+
+  // ── Microphone / Speech Recognition ──
+  let recognition = null;
+
+  function toggleMic() {
+    if (recognition) {
+      recognition.stop();
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Use Chrome or Safari.');
+      return;
+    }
+
+    const btn = document.getElementById('mic-btn');
+    const label = document.getElementById('mic-label');
+    const input = document.getElementById('english-input');
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      btn.classList.add('listening');
+      label.textContent = 'Listening…';
+      input.placeholder = 'Listening…';
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results)
+        .map(r => r[0].transcript).join('');
+      input.value = transcript;
+      // If final result, auto-translate
+      if (e.results[e.results.length - 1].isFinal) {
+        recognition.stop();
+        doTranslate();
+      }
+    };
+
+    recognition.onerror = (e) => {
+      console.error('Speech error', e.error);
+      resetMic();
+    };
+
+    recognition.onend = () => resetMic();
+
+    recognition.start();
+  }
+
+  function resetMic() {
+    recognition = null;
+    const btn = document.getElementById('mic-btn');
+    const label = document.getElementById('mic-label');
+    btn.classList.remove('listening');
+    label.textContent = 'Speak';
+    document.getElementById('english-input').placeholder = 'Type in English… or click Speak\ne.g. Where is the nearest MTR station?';
   }
 
   // Load on page load
